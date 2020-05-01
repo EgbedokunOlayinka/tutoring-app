@@ -6,11 +6,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 
-exports.studentSignup = (req,res,next) => {
-    const { firstname, lastname, email, password} = req.body;
+exports.tutorSignup = (req,res,next) => {
+    const { firstname, lastname, email, password, experience } = req.body;
     
 
-    if(!firstname || !lastname || !email || !password) {
+    if(!firstname || !lastname || !email || !password || !experience) {
             res
             .status(400)
             .send({
@@ -20,10 +20,10 @@ exports.studentSignup = (req,res,next) => {
         
     }
 
-    Student.findOne({email})
-    .then(student => {
-        if(student) {
-            return res
+    Tutor.findOne({email})
+    .then(tutor => {
+        if(tutor) {
+           return res
             .status(423)
             .send({
                 status: false,
@@ -33,13 +33,17 @@ exports.studentSignup = (req,res,next) => {
 
         bcrypt.hash(password, 12)
         .then(password => {
-            let student = new Student({
-                firstname, lastname, email, password
-            })
-    
-            return student.save()
+        let tutor = new Tutor({
+            firstname, lastname, email, password, experience
         })
-    
+
+        if(tutor.experience>=3) {
+            tutor.adminstatus = true;
+        }
+
+        return tutor.save()
+    })
+
         .then(() => {
             res
             .status(200)
@@ -51,25 +55,22 @@ exports.studentSignup = (req,res,next) => {
         .catch((err) => {
             console.log(err)
         })
-    })
-
-    
-   
+        })
 
 };
 
-exports.studentLogin = (req,res,next) => {
+exports.tutorLogin = (req,res,next) => {
     const { email, password } = req.body;
 
-    Student.findOne({email})
-    .then(student => {
-        if(!student) {
+    Tutor.findOne({email})
+    .then(tutor => {
+        if(!tutor) {
             res
             .status(403)
             .send('User not found. Please provide valid details')
         }
 
-        bcrypt.compare(password, student.password)
+        bcrypt.compare(password, tutor.password)
         .then(valid => {
             if(!valid) {
                 res
@@ -78,9 +79,9 @@ exports.studentLogin = (req,res,next) => {
             }
 
             const token = jwt.sign({
-                email: student.email, _id: student._id
+                email: tutor.email, _id: tutor._id
             },
-            'studenttoken',
+            'tutortoken',
             {
                 expiresIn: '1hr'
             })
@@ -88,7 +89,7 @@ exports.studentLogin = (req,res,next) => {
             res
             .status(200)
             .send({
-                _id: student._id,
+                _id: tutor._id,
                 token
             });
         });
@@ -96,5 +97,7 @@ exports.studentLogin = (req,res,next) => {
     })
     .catch(err => console.log(err));
 }
+
+
 
 

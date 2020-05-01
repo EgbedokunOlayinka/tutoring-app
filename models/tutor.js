@@ -19,7 +19,16 @@ const tutorSchema = new Schema({
         type: String,
         required: true
     },
+    experience: {
+        type: Number,
+        required: true
+    },
+    role: {
+        type: String,
+        default: 'tutor'
+    },
     subjects: {
+        type: [],
         default: []
     },
     adminstatus: {
