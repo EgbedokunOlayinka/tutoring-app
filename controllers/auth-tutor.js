@@ -81,7 +81,7 @@ exports.tutorLogin = (req,res,next) => {
             const token = jwt.sign({
                 email: tutor.email, _id: tutor._id
             },
-            'tutortoken',
+            'secrettoken',
             {
                 expiresIn: '1hr'
             })

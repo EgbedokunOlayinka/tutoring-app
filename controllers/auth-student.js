@@ -80,7 +80,7 @@ exports.studentLogin = (req,res,next) => {
             const token = jwt.sign({
                 email: student.email, _id: student._id
             },
-            'studenttoken',
+            'secrettoken',
             {
                 expiresIn: '1hr'
             })
