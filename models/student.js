@@ -23,10 +23,6 @@ const studentSchema = new Schema({
         type: String,
         default: 'student'
     },
-    subjects: {
-        type: [],
-        default: []
-    },
     lessons: {
         type: [],
         default: []

@@ -7,8 +7,9 @@ const subjectSchema = new Schema({
        type: String,
        required: true
    },
-   subjects: {
-       type: []
+   tutors: {
+       type: [],
+       default: []
    }
 },{timestamps: true})
 

@@ -8,7 +8,8 @@ const categorySchema = new Schema({
        required: true
    },
    subjects: {
-       type: []
+       type: [],
+       default: []
    }
 },{timestamps: true})
 

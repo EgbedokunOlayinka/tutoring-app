@@ -5,8 +5,7 @@ const Category = require('../models/category');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-
-exports.verifyToken = (req,res,next) => {
+exports.verifyTutor = (req,res,next) => {
     const authHeader = req.headers.authorization;
 
     if(authHeader) {
@@ -14,17 +13,107 @@ exports.verifyToken = (req,res,next) => {
         jwt.verify(token, 'secrettoken', (err,user) => {
             if(err) {
                 res
-                .status(401)
+                .status(403)
                 .send('Incorrect token')
             }
-            
+
             req.user = user;
-            next();
+            console.log(user);
+            if(user.role==='tutor'){
+                next();
+            } else {
+                res.status(401).send('You do not possess sufficient authorization to view this page')
+            }
+            
         });
     } else {
         res
         .status(401)
-        .send('You are not aunthenticated to view this page');
-    }
-
+        .send('You are not authenticated to view this page');
+    }              
 };
+
+exports.verifyStudent = (req,res,next) => {
+    const authHeader = req.headers.authorization;
+
+    if(authHeader) {
+        const token = authHeader.split(' ')[1];
+        jwt.verify(token, 'secrettoken', (err,user) => {
+            if(err) {
+                res
+                .status(403)
+                .send('Incorrect token')
+            }
+
+            req.user = user;
+            console.log(user);
+            if(user.role==='student'){
+                next();
+            } else {
+                res.status(401).send('You do not possess sufficient authorization to view this page')
+            }
+            
+        });
+    } else {
+        res
+        .status(401)
+        .send('You are not authenticated to view this page');
+    }              
+};
+
+exports.verifyAdmin = (req,res,next) => {
+    const authHeader = req.headers.authorization;
+
+    if(authHeader) {
+        const token = authHeader.split(' ')[1];
+        jwt.verify(token, 'secrettoken', (err,user) => {
+            if(err) {
+                res
+                .status(403)
+                .send('Incorrect token')
+            }
+
+            req.user = user;
+            console.log(user);
+            if(user.role==='tutor' && user.adminstatus===true){
+                next();
+            } else {
+                res.status(401).send('You do not possess sufficient authorization to view this page')
+            }
+            
+        });
+    } else {
+        res
+        .status(401)
+        .send('You are not authenticated to view this page');
+    }              
+};
+
+exports.verifyStudentAndAdmin = (req,res,next) => {
+    const authHeader = req.headers.authorization;
+
+    if(authHeader) {
+        const token = authHeader.split(' ')[1];
+        jwt.verify(token, 'secrettoken', (err,user) => {
+            if(err) {
+                res
+                .status(403)
+                .send('Incorrect token')
+            }
+
+            req.user = user;
+            console.log(user);
+            if((user.role==='tutor' && user.adminstatus===true)||user.role==='student'){
+                next();
+            } else {
+                res.status(401).send('You do not possess sufficient authorization to view this page')
+            }
+            
+        });
+    } else {
+        res
+        .status(401)
+        .send('You are not authenticated to view this page');
+    }              
+};
+

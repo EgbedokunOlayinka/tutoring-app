@@ -79,7 +79,7 @@ exports.tutorLogin = (req,res,next) => {
             }
 
             const token = jwt.sign({
-                email: tutor.email, _id: tutor._id
+                email: tutor.email, _id: tutor._id, role: tutor.role, adminstatus: tutor.adminstatus
             },
             'secrettoken',
             {
