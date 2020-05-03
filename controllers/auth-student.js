@@ -82,7 +82,7 @@ exports.studentLogin = (req,res,next) => {
             },
             'secrettoken',
             {
-                expiresIn: '1hr'
+                expiresIn: '12hr'
             })
 
             res

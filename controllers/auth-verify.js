@@ -117,3 +117,25 @@ exports.verifyStudentAndAdmin = (req,res,next) => {
     }              
 };
 
+exports.verifyGeneral = (req,res,next) => {
+    const authHeader = req.headers.authorization;
+
+    if(authHeader) {
+        const token = authHeader.split(' ')[1];
+        jwt.verify(token, 'secrettoken', (err,user) => {
+            if(err) {
+                res
+                .status(403)
+                .send('Incorrect token')
+            }
+
+            req.user = user;
+            next();
+        });
+    } else {
+        res
+        .status(401)
+        .send('You are not authenticated to view this page');
+    }              
+};
+
