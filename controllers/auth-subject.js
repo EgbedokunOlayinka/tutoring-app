@@ -1,5 +1,6 @@
 const Category = require('../models/category');
 const Subject = require('../models/subject');
+const Tutor = require('../models/tutor')
 
 
 // exports.createSubjects = (req,res,next) => {
@@ -131,9 +132,24 @@ exports.deleteSubject = (req,res,next) => {
                         {_id: subject.category},
                         {$pull: {subjects: subject._id}},
                         function(err, numberAffected) {
-                            console.log(numberAffected);
+                            console.log(numberAffected.n);
+
+                            Tutor.find({subjects:{"$in":[subjectId]}})
+                            .then(tutors=>{
+                                for(let i in tutors) {
+                                    Tutor.update(
+                                        {_id: tutors[i]._id},
+                                        {$pull: {subjects: subject._id}},
+                                        function(err, numberAffected) {
+                                            console.log(numberAffected.n);
+                                        }
+                                    )
+                                }
+                                res.status(204).send('Subjected deleted successfully')
+                            })
                         }
-                    )
+                        )
+                    
                 } else {
                     console.log(err);
                 }
@@ -143,5 +159,55 @@ exports.deleteSubject = (req,res,next) => {
     })
 }
 
+exports.updateSubject = (req,res,next) => {
+    let { name } = req.body;
+    let categoryId = req.url.split('/')[2];
+    let subjectId = req.params.id;
 
+    Category.findOne({_id:categoryId})
+    .then((category)=> {
+        if(!category) {
+            res.status(404).send('Category not found');
+        } else {
+            Category.findOne({_id:categoryId})
+            .populate('subjects', 'name category')
+            .exec((err, subjects)=> {
+                if(err) console.log(err);
+                Subject.findByIdAndUpdate(subjectId, {name:name})
+                .then((subject)=>{
+                    res.send('Subject updated successfully');
+                })
+                .catch(err=>console.log(err))
+            })
+        }
+    })
+}
 
+exports.viewSubjectTutors = (req,res,next) => {
+    let categoryId = req.url.split('/')[2];
+    let subjectId = req.url.split('/')[4];
+
+    Category.findById(categoryId)
+    .then(category=>{
+        if(!category) {
+            res.status(404).send('Category not found');
+        } else {
+            Subject.findById(subjectId)
+            .then(subject=>{
+                if(!subject) {
+                    res.status(404).send('Subject not found')
+                } else {
+                    Subject.findById(subjectId)
+                    .populate('tutors', 'name email')
+                    .exec((err,tutors)=>{
+                        if(err) console.log(err)
+                        Tutor.find({subjects:{"$in":[subjectId]}})
+                        .then(tutors=>{
+                            res.send(tutors);
+                        })
+                    })
+                }
+            })
+        }
+    })
+}

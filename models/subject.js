@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Category = require('./category');
+const Tutor = require('./tutor')
 
 
 const subjectSchema = new Schema({
@@ -13,10 +14,7 @@ const subjectSchema = new Schema({
     ref: 'Category',
     
     },
-   tutors: {
-       type: [],
-       default: []
-   }
+   tutors: [{ type: Schema.Types.ObjectId, ref: 'Tutor' }]
 },{timestamps: true})
 
 

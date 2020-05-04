@@ -98,6 +98,79 @@ exports.tutorLogin = (req,res,next) => {
     .catch(err => console.log(err));
 }
 
+exports.showTutors = (req,res,next) => {
+    Tutor.find({})
+    .then(tutors=>{
+        res.send(tutors);
+    })
+}
+
+exports.showTutor = (req,res,next) => {
+    Tutor.findById(req.params.id)
+    .then(tutor=>{
+        if(!tutor) {
+            res.status(404).send('Tutor not found')
+        } else {
+            res.send(tutor);
+        }
+    })
+}
+
+exports.registerTutor = (req,res,next) => {
+    const categoryId = req.url.split('/')[2];
+    const subjectId = req.url.split('/')[4];
+    const { email } = req.body;
+
+    if(!email) {
+        res.status(400).send('Email field required')
+    } else {
+        Category.findById(categoryId)
+        .then(category=>{
+        if(!category) {
+            return res.status(404).send('Category not found');
+        } else {
+            Subject.findById(subjectId)
+            .then(subject=>{
+                if(!subject) {
+                    return res.status(404).send('Status not found');
+                } else {
+                    Tutor.findOne({email:email})
+                    .then(tutor=>{
+                        tutor.subjects.push(subject);
+                        tutor.save()
+                        .then(tutor=>{
+                        subject.tutors.push(tutor);
+                        subject.save()
+                        .then(()=>{
+                            res.status(201).send('Tutor registered successfully')
+                        })
+                        .catch(err=>console.log(err))
+                        })
+                    })
+                }
+            })
+        }
+    })
+    }
+}
+
+exports.viewTutorSubjects = (req,res,next) => {
+    let tutorId = req.url.split('/')[2];
+    
+    Tutor.findById(tutorId)
+    .populate('subjects', 'name category')
+    .exec((err,subjects)=>{
+        if(err) console.log(err);
+        Subject.find({tutors:{"$in":[tutorId]}})
+        .then(subjects=>{
+            res.send(subjects);
+        })
+    })
+}
+
+
+
+
 
 
 

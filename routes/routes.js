@@ -3,11 +3,11 @@ const router = require('express').Router();
 const Category = require('../models/category');
 const Subject = require('../models/subject');
 
-const { verifyStudent, verifyTutor, verifyAdmin, verifyStudentAndAdmin, verifyGeneral } = require('../controllers/auth-verify');
+const { verifyStudent, verifyTutor, verifyAdmin, verifyStudentAndAdmin, verifyGeneral, verifyRegisteredTutor } = require('../controllers/auth-verify');
 const { studentSignup, studentLogin } = require('../controllers/auth-student');
-const { tutorSignup, tutorLogin } = require('../controllers/auth-tutor');
+const { tutorSignup, tutorLogin, showTutors, showTutor, registerTutor, viewTutorSubjects } = require('../controllers/auth-tutor');
 const { createCategories, showCategories, showCategory, updateCategory, deleteCategory } = require('../controllers/auth-category');
-const { createSubjects, showSubjects, showAllSubjects, showSubject, deleteSubject } = require('../controllers/auth-subject');
+const { createSubjects, showSubjects, showAllSubjects, showSubject, deleteSubject , updateSubject, viewSubjectTutors} = require('../controllers/auth-subject');
 
 router.get('/', (req,res)=> {
     res.send('</h1>welcome page<h1>');
@@ -27,14 +27,16 @@ router.get('/categories/:id/subjects/:id', verifyGeneral, showSubject);
 router.post('/students/signup', studentSignup);
 router.post('/students/login', studentLogin);
 // router.post(book lesson)
+router.get('/categories/:id/subjects/:id/tutors', verifyStudent, viewSubjectTutors);
 // router.get(view all tutors taking a subject in a category)
 
 
 //TUTOR ROUTES
 router.post('/tutors/signup', tutorSignup);
 router.post('/tutors/login', tutorLogin);
-// router.post(register to teach subject in a category);
-// router.get(view all the subject they registered to teach);
+router.post('/categories/:id/subjects/:id/tutors', verifyTutor, registerTutor );
+router.get('/tutors/:id/subjects', verifyTutor, viewTutorSubjects);
+
 // router.put(update registered subject);
 // router.delete(delete registered subject);
 
@@ -43,6 +45,12 @@ router.post('/categories',verifyAdmin, createCategories);
 router.put('/categories/:id', verifyAdmin, updateCategory);
 router.delete('/categories/:id', verifyAdmin, deleteCategory);
 router.post('/categories/:id/subjects', verifyAdmin, createSubjects);
-router.delete('/categories/:id/subjects/:id', verifyAdmin, deleteSubject);
+router.get('/tutors', verifyAdmin, showTutors);
+router.get('/tutors/:id', verifyAdmin, showTutor);
+
+//ADMIN AND REGISTERED TUTOR ROUTES
+router.put('/categories/:id/subjects/:id', verifyRegisteredTutor, updateSubject);
+router.delete('/categories/:id/subjects/:id', verifyRegisteredTutor, deleteSubject);
+
 
 module.exports = router;
