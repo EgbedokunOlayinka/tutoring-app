@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Subject = require('./subject');
+const Lesson = require('./lesson');
 
 
 const tutorSchema = new Schema({
@@ -30,6 +31,8 @@ const tutorSchema = new Schema({
     },
     subjects: [{ type: Schema.Types.ObjectId, ref: 'Subject' }]
     ,
+    lessons: [{ type: Schema.Types.ObjectId, ref: 'Lesson' }],
+
     adminstatus: {
         type: Boolean,
         default: false

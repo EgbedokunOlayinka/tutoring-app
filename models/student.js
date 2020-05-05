@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Lesson = require('./lesson');
 
 
 const studentSchema = new Schema({
@@ -23,10 +24,7 @@ const studentSchema = new Schema({
         type: String,
         default: 'student'
     },
-    lessons: {
-        type: [],
-        default: []
-    }
+    lessons: [{ type: Schema.Types.ObjectId, ref: 'Lesson' }]
 
 },{timestamps: true})
 

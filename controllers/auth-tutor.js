@@ -161,10 +161,11 @@ exports.viewTutorSubjects = (req,res,next) => {
     .populate('subjects', 'name category')
     .exec((err,subjects)=>{
         if(err) console.log(err);
-        Subject.find({tutors:{"$in":[tutorId]}})
-        .then(subjects=>{
-            res.send(subjects);
-        })
+        // Subject.find({tutors:{"$in":[tutorId]}})
+        // .then(subjects=>{
+        //     res.send(subjects);
+        // })
+        res.send(subjects);
     })
 }
 

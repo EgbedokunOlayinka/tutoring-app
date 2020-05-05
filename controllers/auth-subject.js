@@ -87,12 +87,23 @@ exports.showSubjects = (req,res,next) => {
 }
 
 exports.showAllSubjects = (req,res,next) => {
-    Category.find({})
-    .populate('subjects', 'name category')
-    .exec((err,subjects)=> {
+    let query = req.query.search;
+    if(query) {
+        Subject.find({name: query}).collation({locale:'en',strength: 2}).sort({name:1})
+        .then(subjects=>{
+            res.send(subjects)
+        })
+        
+    } else {
+        Category.find({})
+        .populate('subjects', 'name category')
+        .exec((err,subjects)=> {
         res.send(subjects);
-    })
+        })
+    }
 }
+
+
 
 exports.showSubject = (req,res,next) => {
     let categoryId = req.url.split('/')[2];
@@ -201,13 +212,13 @@ exports.viewSubjectTutors = (req,res,next) => {
                     .populate('tutors', 'name email')
                     .exec((err,tutors)=>{
                         if(err) console.log(err)
-                        Tutor.find({subjects:{"$in":[subjectId]}})
-                        .then(tutors=>{
-                            res.send(tutors);
-                        })
+                        res.send(tutors);
+                        
                     })
                 }
             })
         }
     })
 }
+
+
