@@ -2,8 +2,10 @@ const Student = require('../models/student');
 const Tutor = require('../models/tutor');
 const Subject = require('../models/subject');
 const Category = require('../models/category');
+const Lesson = require('../models/lesson');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { verifyGeneral, verifyAdmin } = require('../controllers/auth-verify');
 
 
 exports.tutorSignup = (req,res,next) => {
@@ -98,12 +100,99 @@ exports.tutorLogin = (req,res,next) => {
     .catch(err => console.log(err));
 }
 
+// exports.showTutors = (req,res,next) => {
+//     Tutor.find({})
+//     .then(tutors=>{
+//         res.send(tutors);
+//     })
+// }
+
+// exports.showTutors = (req,res,next) => {
+//     let query = req.query.search;
+//     if(query) {
+//         verifyGeneral;
+//         Tutor.find({firstname: query}).collation({locale:'en',strength: 2}).sort({name:1})
+//         .then(tutors=>{
+//             res.send(tutors)
+//         })
+        
+//     } else {
+//         verifyAdmin;
+//         Tutor.find({})
+//         .then(tutors=>{
+//         res.send(tutors);
+//         })
+//     }
+// }
+
 exports.showTutors = (req,res,next) => {
-    Tutor.find({})
-    .then(tutors=>{
-        res.send(tutors);
-    })
+    const search = req.query.search;
+    const authHeader = req.headers.authorization;
+    // const sorted = req.query.sort;
+    console.log(search);
+
+    if(authHeader) {
+        if(search) {
+            const token = authHeader.split(' ')[1];
+            jwt.verify(token, 'secrettoken', (err,user) => {
+            if(err) {
+                res
+                .status(403)
+                .send('Incorrect token')
+            }
+            req.user = user;
+            Tutor.find({firstname: search}).collation({locale:'en',strength: 2}).sort({firstname:1})
+            .then(tutors=>{
+            res.send(tutors);
+                })
+            });
+        } else {
+            const token = authHeader.split(' ')[1];
+            jwt.verify(token, 'secrettoken', (err,user) => {
+                if(err) {
+                    res
+                    .status(403)
+                    .send('Incorrect token')
+                }
+    
+                req.user = user;
+                console.log(user);
+                if(user.role==='tutor' && user.adminstatus===true){
+                    Tutor.find({})
+                    .then(tutors=>{
+                        res.send(tutors);
+                    })
+                } else {
+                    res.status(401).send('You do not possess sufficient authorization to view this page')
+                }
+                
+            });
+        }
+    } else {
+        res.status(401).send('You are not authenticated to view this page')
+    }
+
+    // if(search) {
+    //     if(authHeader) {
+            
+    //     } else {
+    //         res
+    //         .status(401)
+    //         .send('You are not authenticated to view this page');
+    //     }
+        
+    // } else {
+    //     if(authHeader) {
+            
+    //     } else {
+    //         res
+    //         .status(401)
+    //         .send('You are not authenticated to view this page');
+    //     }            
+    // }
+
 }
+
 
 exports.showTutor = (req,res,next) => {
     Tutor.findById(req.params.id)
@@ -168,6 +257,44 @@ exports.viewTutorSubjects = (req,res,next) => {
         res.send(subjects);
     })
 }
+
+exports.deleteTutor = (req,res,next) => {
+    let tutorId = req.params.id;
+    console.log(tutorId)
+
+    Tutor.findById(tutorId)
+    .then(tutor=>{
+        if(!tutor) {
+            res.status(404).send('Tutor not found');
+        } else {
+            tutor.remove((err)=>{
+                if(!err){
+                    Lesson.deleteMany({tutor_id: tutorId})
+                    .then(lesson=>{
+                        Subject.find({tutors:{"$in":[tutorId]}})
+                        .then(subjects=>{
+                            for(let i in subjects) {
+                                Subject.update(
+                                    {_id: subjects[i]._id},
+                                    {$pull: {tutors: tutorId}},
+                                    function(err, numberAffected) {
+                                        if(err) console.log(err)
+                                        console.log(numberAffected.n);
+                                    }
+                                )
+                            }
+                            res.status(204).send('Tutor deactivated successfully');
+                        })
+                    })
+                } else {
+                    console.log(err);
+                }
+            })
+        }
+    })
+
+}
+
 
 
 

@@ -1,6 +1,7 @@
 const Category = require('../models/category');
 const Subject = require('../models/subject');
-const Tutor = require('../models/tutor')
+const Tutor = require('../models/tutor');
+const jwt = require('jsonwebtoken');
 
 
 // exports.createSubjects = (req,res,next) => {
@@ -86,21 +87,55 @@ exports.showSubjects = (req,res,next) => {
     })
 }
 
-exports.showAllSubjects = (req,res,next) => {
-    let query = req.query.search;
-    if(query) {
-        Subject.find({name: query}).collation({locale:'en',strength: 2}).sort({name:1})
-        .then(subjects=>{
-            res.send(subjects)
-        })
+// exports.showAllSubjects = (req,res,next) => {
+//     let query = req.query.search;
+//     if(query) {
+//         Subject.find({name: query}).collation({locale:'en',strength: 2}).sort({name:1})
+//         .then(subjects=>{
+//             res.send(subjects)
+//         })
         
+//     } else {
+//         Category.find({})
+//         .populate('subjects', 'name category')
+//         .exec((err,subjects)=> {
+//         res.send(subjects);
+//         })
+//     }
+// }
+
+
+exports.showAllSubjects = (req,res,next) => {
+    const authHeader = req.headers.authorization;
+    const search = req.query.search;
+
+    if(authHeader) {
+        const token = authHeader.split(' ')[1];
+        jwt.verify(token, 'secrettoken', (err,user) => {
+            if(err) {
+                res
+                .status(403)
+                .send('Incorrect token')
+            }
+            req.user = user;
+            if(search) {
+                Subject.find({name: search}).collation({locale:'en',strength: 2}).sort({name:1})
+                .then(subjects=>{
+                    res.send(subjects);
+                })
+            } else {
+                Category.find({})
+                .populate('subjects', 'name category')
+                .exec((err,subjects)=> {
+                res.send(subjects);
+                })
+            }
+        });
     } else {
-        Category.find({})
-        .populate('subjects', 'name category')
-        .exec((err,subjects)=> {
-        res.send(subjects);
-        })
-    }
+        res
+        .status(401)
+        .send('You are not authenticated to view this page');
+    }            
 }
 
 
@@ -220,5 +255,6 @@ exports.viewSubjectTutors = (req,res,next) => {
         }
     })
 }
+
 
 
