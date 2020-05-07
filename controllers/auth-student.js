@@ -4,6 +4,7 @@ const Subject = require('../models/subject');
 const Category = require('../models/category');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv').config();
 
 
 exports.studentSignup = (req,res,next) => {
@@ -45,7 +46,7 @@ exports.studentSignup = (req,res,next) => {
             .status(200)
             .send({
                 status: true,
-                message: 'Welcome to my channel'
+                message: 'Welcome to the online tutoring system'
             })
         })
         .catch((err) => {
@@ -80,7 +81,7 @@ exports.studentLogin = (req,res,next) => {
             const token = jwt.sign({
                 email: student.email, _id: student._id, role: student.role
             },
-            'secrettoken',
+            process.env.SECRET ,
             {
                 expiresIn: '12hr'
             })

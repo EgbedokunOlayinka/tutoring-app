@@ -4,14 +4,17 @@ const Category = require('../models/category');
 const Subject = require('../models/subject');
 
 const { verifyStudent, verifyTutor, verifyAdmin, verifyStudentAndAdmin, verifyGeneral, verifyRegisteredTutor } = require('../controllers/auth-verify');
+
 const { studentSignup, studentLogin } = require('../controllers/auth-student');
+
 const { tutorSignup, tutorLogin, showTutors, showTutor, registerTutor, viewTutorSubjects, deleteTutor } = require('../controllers/auth-tutor');
+
 const { createCategories, showCategories, showCategory, updateCategory, deleteCategory } = require('../controllers/auth-category');
+
 const { createSubjects, showSubjects, showAllSubjects, showSubject, deleteSubject , updateSubject, viewSubjectTutors } = require('../controllers/auth-subject');
+
 const { bookLesson, viewLessons, viewLesson, updateLesson, deleteLesson } = require('../controllers/auth-lesson');
-router.get('/', (req,res)=> {
-    res.send('</h1>welcome page<h1>');
-})
+
 
 //GENERAL ROUTES
 router.get('/categories', verifyGeneral, showCategories);

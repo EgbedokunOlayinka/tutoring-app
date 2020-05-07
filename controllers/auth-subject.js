@@ -2,39 +2,9 @@ const Category = require('../models/category');
 const Subject = require('../models/subject');
 const Tutor = require('../models/tutor');
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv').config();
 
 
-// exports.createSubjects = (req,res,next) => {
-//     let categoryId = req.url.split('/')[2];
-//     let { name } = req.body;
-
-//     if(!name) {
-//         return res.status(400).send('Subject name required');
-//     }
-
-//     Category.findOne({_id:categoryId})
-//     .then((category)=>{
-//         if(category) {
-//             if(category.subjects.includes(name)===true) {
-//                 res.status(423).send('Subject already exists in this category')
-//             } else {
-//                 let newSubject = new Subject({
-//                     name: name
-//                 })
-//                 newSubject.save()
-//                 .then((newSubject)=>{
-//                     category.subjects.push(newSubject);
-//                     category.save()
-//                     .then(()=>{
-//                         next();
-//                     })
-//                 })
-//             }
-//         } else {
-//             res.status(404).send('Category not found')
-//         }
-//     })
-// };
 
 exports.createSubjects = (req,res,next) => {
     let categoryId = req.url.split('/')[2];
@@ -86,23 +56,6 @@ exports.showSubjects = (req,res,next) => {
         }
     })
 }
-
-// exports.showAllSubjects = (req,res,next) => {
-//     let query = req.query.search;
-//     if(query) {
-//         Subject.find({name: query}).collation({locale:'en',strength: 2}).sort({name:1})
-//         .then(subjects=>{
-//             res.send(subjects)
-//         })
-        
-//     } else {
-//         Category.find({})
-//         .populate('subjects', 'name category')
-//         .exec((err,subjects)=> {
-//         res.send(subjects);
-//         })
-//     }
-// }
 
 
 exports.showAllSubjects = (req,res,next) => {

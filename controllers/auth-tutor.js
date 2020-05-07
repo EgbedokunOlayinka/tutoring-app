@@ -5,6 +5,7 @@ const Category = require('../models/category');
 const Lesson = require('../models/lesson');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv').config();
 const { verifyGeneral, verifyAdmin } = require('../controllers/auth-verify');
 
 
@@ -51,7 +52,7 @@ exports.tutorSignup = (req,res,next) => {
             .status(200)
             .send({
                 status: true,
-                message: 'Welcome to my channel'
+                message: 'Welcome to the online tutoring system'
             })
         })
         .catch((err) => {
@@ -83,7 +84,7 @@ exports.tutorLogin = (req,res,next) => {
             const token = jwt.sign({
                 email: tutor.email, _id: tutor._id, role: tutor.role, adminstatus: tutor.adminstatus
             },
-            'secrettoken',
+            process.env.SECRET ,
             {
                 expiresIn: '12hr'
             })
@@ -100,30 +101,6 @@ exports.tutorLogin = (req,res,next) => {
     .catch(err => console.log(err));
 }
 
-// exports.showTutors = (req,res,next) => {
-//     Tutor.find({})
-//     .then(tutors=>{
-//         res.send(tutors);
-//     })
-// }
-
-// exports.showTutors = (req,res,next) => {
-//     let query = req.query.search;
-//     if(query) {
-//         verifyGeneral;
-//         Tutor.find({firstname: query}).collation({locale:'en',strength: 2}).sort({name:1})
-//         .then(tutors=>{
-//             res.send(tutors)
-//         })
-        
-//     } else {
-//         verifyAdmin;
-//         Tutor.find({})
-//         .then(tutors=>{
-//         res.send(tutors);
-//         })
-//     }
-// }
 
 exports.showTutors = (req,res,next) => {
     const search = req.query.search;
@@ -134,7 +111,7 @@ exports.showTutors = (req,res,next) => {
     if(authHeader) {
         if(search) {
             const token = authHeader.split(' ')[1];
-            jwt.verify(token, 'secrettoken', (err,user) => {
+            jwt.verify(token, process.env.SECRET , (err,user) => {
             if(err) {
                 res
                 .status(403)
@@ -148,7 +125,7 @@ exports.showTutors = (req,res,next) => {
             });
         } else {
             const token = authHeader.split(' ')[1];
-            jwt.verify(token, 'secrettoken', (err,user) => {
+            jwt.verify(token, process.env.SECRET , (err,user) => {
                 if(err) {
                     res
                     .status(403)
@@ -171,25 +148,6 @@ exports.showTutors = (req,res,next) => {
     } else {
         res.status(401).send('You are not authenticated to view this page')
     }
-
-    // if(search) {
-    //     if(authHeader) {
-            
-    //     } else {
-    //         res
-    //         .status(401)
-    //         .send('You are not authenticated to view this page');
-    //     }
-        
-    // } else {
-    //     if(authHeader) {
-            
-    //     } else {
-    //         res
-    //         .status(401)
-    //         .send('You are not authenticated to view this page');
-    //     }            
-    // }
 
 }
 
@@ -250,10 +208,6 @@ exports.viewTutorSubjects = (req,res,next) => {
     .populate('subjects', 'name category')
     .exec((err,subjects)=>{
         if(err) console.log(err);
-        // Subject.find({tutors:{"$in":[tutorId]}})
-        // .then(subjects=>{
-        //     res.send(subjects);
-        // })
         res.send(subjects);
     })
 }
@@ -283,8 +237,8 @@ exports.deleteTutor = (req,res,next) => {
                                     }
                                 )
                             }
-                            res.status(204).send('Tutor deactivated successfully');
                         })
+                        res.status(204).send('Tutor deactivated successfully');
                     })
                 } else {
                     console.log(err);

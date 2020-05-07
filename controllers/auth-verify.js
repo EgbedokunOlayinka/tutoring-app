@@ -4,13 +4,14 @@ const Subject = require('../models/subject');
 const Category = require('../models/category');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv').config();
 
 exports.verifyTutor = (req,res,next) => {
     const authHeader = req.headers.authorization;
 
     if(authHeader) {
         const token = authHeader.split(' ')[1];
-        jwt.verify(token, 'secrettoken', (err,user) => {
+        jwt.verify(token, process.env.SECRET , (err,user) => {
             if(err) {
                 res
                 .status(403)
@@ -38,7 +39,7 @@ exports.verifyStudent = (req,res,next) => {
 
     if(authHeader) {
         const token = authHeader.split(' ')[1];
-        jwt.verify(token, 'secrettoken', (err,user) => {
+        jwt.verify(token, process.env.SECRET , (err,user) => {
             if(err) {
                 res
                 .status(403)
@@ -66,7 +67,7 @@ exports.verifyAdmin = (req,res,next) => {
 
     if(authHeader) {
         const token = authHeader.split(' ')[1];
-        jwt.verify(token, 'secrettoken', (err,user) => {
+        jwt.verify(token, process.env.SECRET , (err,user) => {
             if(err) {
                 res
                 .status(403)
@@ -94,7 +95,7 @@ exports.verifyStudentAndAdmin = (req,res,next) => {
 
     if(authHeader) {
         const token = authHeader.split(' ')[1];
-        jwt.verify(token, 'secrettoken', (err,user) => {
+        jwt.verify(token, process.env.SECRET , (err,user) => {
             if(err) {
                 res
                 .status(403)
@@ -122,7 +123,7 @@ exports.verifyGeneral = (req,res,next) => {
 
     if(authHeader) {
         const token = authHeader.split(' ')[1];
-        jwt.verify(token, 'secrettoken', (err,user) => {
+        jwt.verify(token, process.env.SECRET , (err,user) => {
             if(err) {
                 res
                 .status(403)
@@ -146,7 +147,7 @@ exports.verifyRegisteredTutor = (req,res,next) => {
 
     if(authHeader) {
         const token = authHeader.split(' ')[1];
-        jwt.verify(token, 'secrettoken', (err,user) => {
+        jwt.verify(token, process.env.SECRET , (err,user) => {
             if(err) {
                 res
                 .status(403)
