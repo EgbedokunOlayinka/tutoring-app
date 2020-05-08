@@ -1,7 +1,7 @@
 # tutoring-app
-A repo to work on an online tutoring app api
 
-#THIS IS A LINK TO THE DOCUMENTATION OF THE API
+
+#THIS IS A LINK TO THE DOCUMENTATION OF THE API.
 https://documenter.getpostman.com/view/11123808/Szme4dPZ?version=latest
 
 
