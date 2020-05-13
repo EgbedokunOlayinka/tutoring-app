@@ -157,7 +157,7 @@ exports.showTutors = (req,res,next) => {
 
 
 exports.showTutor = (req,res,next) => {
-    Tutor.findById(req.params.id)
+    Tutor.find({_id:req.params.id}, {"password":0})
     .then(tutor=>{
         if(!tutor) {
             res.status(404).send('Tutor not found')
