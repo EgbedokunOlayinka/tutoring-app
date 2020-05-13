@@ -36,6 +36,11 @@ const tutorSchema = new Schema({
     adminstatus: {
         type: Boolean,
         default: false
+    },
+
+    activation_status: {
+        type: Boolean,
+        default: true
     }
 
 },{timestamps: true})

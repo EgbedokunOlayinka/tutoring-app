@@ -7,7 +7,7 @@ const { verifyStudent, verifyTutor, verifyAdmin, verifyStudentAndAdmin, verifyGe
 
 const { studentSignup, studentLogin } = require('../controllers/auth-student');
 
-const { tutorSignup, tutorLogin, showTutors, showTutor, registerTutor, viewTutorSubjects, deleteTutor } = require('../controllers/auth-tutor');
+const { tutorSignup, tutorLogin, showTutors, showTutor, registerTutor, viewTutorSubjects, deactivateTutor } = require('../controllers/auth-tutor');
 
 const { createCategories, showCategories, showCategory, updateCategory, deleteCategory } = require('../controllers/auth-category');
 
@@ -46,9 +46,8 @@ router.post('/categories',verifyAdmin, createCategories);
 router.put('/categories/:id', verifyAdmin, updateCategory);
 router.delete('/categories/:id', verifyAdmin, deleteCategory);
 router.post('/categories/:id/subjects', verifyAdmin, createSubjects);
-
 router.get('/tutors/:id', verifyAdmin, showTutor);
-router.delete('/tutors/:id', verifyAdmin, deleteTutor);
+router.delete('/tutors/:id', verifyAdmin, deactivateTutor);
 router.get('/lessons', verifyAdmin, viewLessons);
 router.get('/lessons/:id', verifyAdmin, viewLesson);
 router.put('/lessons/:id', verifyAdmin, updateLesson);

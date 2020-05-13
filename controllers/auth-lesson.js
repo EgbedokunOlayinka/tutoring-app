@@ -87,31 +87,46 @@ exports.viewLesson = (req,res,next) => {
 exports.updateLesson = (req,res,next) => {
     const { tutor_id } = req.body;
     const lesson_id = req.params.id;
-    console.log(tutor_id, lesson_id);
+    //console.log(tutor_id, lesson_id);
 
-    Lesson.findByIdAndUpdate(lesson_id, {tutor_id: tutor_id})
-    .then(lesson=>{
-        Tutor.find({lessons:{"$in":[lesson_id]}})
-    .then(tutors=>{
-        for(let i in tutors) {
-            Tutor.update(
-                {_id: tutors[i]._id},
-                {$pull: {lessons: lesson_id}},
-                function(err, numberAffected) {
-                    console.log(numberAffected.n);
-                     Tutor.findById(tutor_id)
-                     .then(tutor=>{
-                         tutor.lessons.push(lesson_id)
-                         tutor.save()
-                         .then(()=>{
-                             res.send('Lesson updated successfully')
-                         })
-                     })
+    if(!tutor_id) {
+        res.status(400).send('New tutor id needed');
+    } else {
+        Lesson.findById(lesson_id)
+        .then(lesson=>{
+            Subject.findById(lesson.subject_id)
+            .then(subject=>{
+                if(subject.tutors.includes(tutor_id)==false) {
+                    res.status(404).send('Tutor does not teach this subject');
+                } else {
+                    Lesson.findByIdAndUpdate(lesson_id, {tutor_id: tutor_id})
+                    .then(lesson=>{
+                        Tutor.find({lessons:{"$in":[lesson_id]}})
+                        .then(tutors=>{
+                            for(let i in tutors) {
+                                Tutor.update(
+                                    {_id: tutors[i]._id},
+                                    {$pull: {lessons: lesson_id}},
+                                    function(err, numberAffected) {
+                                        console.log(numberAffected.n);
+                                        Tutor.findById(tutor_id)
+                                        .then(tutor=>{
+                                            tutor.lessons.push(lesson_id)
+                                            tutor.save()
+                                            .then(()=>{
+                                                res.status(200).send('Lesson updated successfully');
+                                            })
+                                        })
+                                    }
+                                )
+                            }
+                        })
+                    })
                 }
-            )
-        }
-    })
-})
+            })
+        })
+    }
+
 }
 
 

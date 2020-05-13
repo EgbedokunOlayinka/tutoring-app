@@ -73,6 +73,10 @@ exports.tutorLogin = (req,res,next) => {
             .send('User not found. Please provide valid details')
         }
 
+        if(tutor.activation_status == false) {
+            res.status(401).send('Tutor is deactivated so cannot log in')
+        }
+
         bcrypt.compare(password, tutor.password)
         .then(valid => {
             if(!valid) {
@@ -106,7 +110,7 @@ exports.showTutors = (req,res,next) => {
     const search = req.query.search;
     const authHeader = req.headers.authorization;
     // const sorted = req.query.sort;
-    console.log(search);
+    //console.log(search);
 
     if(authHeader) {
         if(search) {
@@ -118,7 +122,7 @@ exports.showTutors = (req,res,next) => {
                 .send('Incorrect token')
             }
             req.user = user;
-            Tutor.find({firstname: search}).collation({locale:'en',strength: 2}).sort({firstname:1})
+            Tutor.find({firstname: search}, {"password": 0}).collation({locale:'en',strength: 2}).sort({firstname:1})
             .then(tutors=>{
             res.send(tutors);
                 })
@@ -135,7 +139,7 @@ exports.showTutors = (req,res,next) => {
                 req.user = user;
                 console.log(user);
                 if(user.role==='tutor' && user.adminstatus===true){
-                    Tutor.find({})
+                    Tutor.find({}, {"password": 0})
                     .then(tutors=>{
                         res.send(tutors);
                     })
@@ -212,7 +216,7 @@ exports.viewTutorSubjects = (req,res,next) => {
     })
 }
 
-exports.deleteTutor = (req,res,next) => {
+exports.deactivateTutor = (req,res,next) => {
     let tutorId = req.params.id;
     console.log(tutorId)
 
@@ -221,29 +225,29 @@ exports.deleteTutor = (req,res,next) => {
         if(!tutor) {
             res.status(404).send('Tutor not found');
         } else {
-            tutor.remove((err)=>{
-                if(!err){
-                    Lesson.deleteMany({tutor_id: tutorId})
-                    .then(lesson=>{
-                        Subject.find({tutors:{"$in":[tutorId]}})
-                        .then(subjects=>{
-                            for(let i in subjects) {
-                                Subject.update(
-                                    {_id: subjects[i]._id},
-                                    {$pull: {tutors: tutorId}},
-                                    function(err, numberAffected) {
-                                        if(err) console.log(err)
-                                        console.log(numberAffected.n);
-                                    }
-                                )
+            tutor.activation_status = false;
+            tutor.save()
+            .then(tutor=>{
+                Lesson.deleteMany({tutor_id: tutorId})
+                .then(lesson=>{
+                Subject.find({tutors:{"$in":[tutorId]}})
+                .then(subjects=>{
+                    for(let i in subjects) {
+                        Subject.update(
+                            {_id: subjects[i]._id},
+                            {$pull: {tutors: tutorId}},
+                            function(err, numberAffected) {
+                                if(err) console.log(err)
+                                console.log(numberAffected.n);
                             }
-                        })
-                        res.status(204).send('Tutor deactivated successfully');
-                    })
-                } else {
-                    console.log(err);
-                }
+                        )
+                    }
+                    res.status(200).send('Tutor deactivated successfully');
+                })
+                .catch(err=>console.log(err))
+                })
             })
+            
         }
     })
 
