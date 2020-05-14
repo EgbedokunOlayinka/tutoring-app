@@ -4,10 +4,16 @@ const Subject = require('../models/subject');
 
 exports.createCategories = (req,res,next) => {
     const { name } = req.body;
+    const arr = ['Primary', 'JSS', 'SSS'];
 
     if(!name) {
         res.status(400).send('Name field required');
     }
+
+    if(arr.includes(name)==false) {
+        res.status(400).send('Category can only be Primary, JSS or SSS');
+    }
+    
 
     Category.findOne({name})
     .then(category => {
